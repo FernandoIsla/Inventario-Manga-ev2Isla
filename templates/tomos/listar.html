@@ -15,12 +15,98 @@
 </div>
 {% endif %}
 
+<!-- Panel de Filtros y Búsqueda (Requisito 11) con Botones de Exportación (Requisitos 12 y 13.b) -->
+<div class="panel-filtros">
+    <div class="filtros-header">
+        <div>
+            <h3>Filtros y Búsqueda</h3>
+            <p style="color: var(--texto-secundario); font-size: 0.85rem; margin-top: 0.2rem;">
+                Filtra por serie, editorial, demografía o texto para afinar los resultados
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <a href="{% url 'exportar_tomos_excel' %}{% if query_string %}?{{ query_string }}{% endif %}" 
+               class="btn btn-sm btn-excel" title="Descargar inventario en formato Excel (.xlsx)">
+                Exportar Excel (.xlsx)
+            </a>
+            <a href="{% url 'exportar_tomos_csv' %}{% if query_string %}?{{ query_string }}{% endif %}" 
+               class="btn btn-sm btn-csv" title="Descargar inventario en formato CSV (.csv)">
+                Exportar CSV (.csv)
+            </a>
+        </div>
+    </div>
+
+    <form method="GET" action="{% url 'listar_tomos' %}">
+        <div class="filtros-grid">
+            <div class="campo-filtro">
+                <label for="id_q">Buscar</label>
+                <input type="text" id="id_q" name="q" value="{{ filtro_q }}" 
+                       placeholder="Título, autor o ISBN..." class="form-control">
+            </div>
+
+            <div class="campo-filtro">
+                <label for="id_serie">Serie</label>
+                <select id="id_serie" name="serie" class="form-select">
+                    <option value="">Todas las series</option>
+                    {% for s in series %}
+                    <option value="{{ s.id }}" {% if filtro_serie == s.id|stringformat:"i" %}selected{% endif %}>
+                        {{ s.titulo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo-filtro">
+                <label for="id_editorial">Editorial</label>
+                <select id="id_editorial" name="editorial" class="form-select">
+                    <option value="">Todas</option>
+                    {% for ed in editoriales %}
+                    <option value="{{ ed.id }}" {% if filtro_editorial == ed.id|stringformat:"i" %}selected{% endif %}>
+                        {{ ed.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo-filtro">
+                <label for="id_demografia">Demografía</label>
+                <select id="id_demografia" name="demografia" class="form-select">
+                    <option value="">Todas</option>
+                    {% for d in demografias %}
+                    <option value="{{ d.id }}" {% if filtro_demografia == d.id|stringformat:"i" %}selected{% endif %}>
+                        {{ d.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo-filtro">
+                <label for="id_stock">Disponibilidad</label>
+                <select id="id_stock" name="stock" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="disponible" {% if filtro_stock == 'disponible' %}selected{% endif %}>En stock</option>
+                    <option value="agotado" {% if filtro_stock == 'agotado' %}selected{% endif %}>Agotados</option>
+                </select>
+            </div>
+
+            <div class="botones-filtro">
+                <button type="submit" class="btn btn-sm btn-primario" style="height: 38px;">
+                    Filtrar
+                </button>
+                <a href="{% url 'listar_tomos' %}" class="btn btn-sm btn-secundario" style="height: 38px;">
+                    Limpiar
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="tabla-contenedor">
     <div class="tabla-header-bar">
         <div>
             <h2>Inventario General de Tomos</h2>
             <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
-                Control de existencias físicas y registros de portada
+                Mostrando {{ tomos|length }} de {{ total_registros }} tomo{{ total_registros|pluralize }} encontrado{{ total_registros|pluralize }}
             </p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
@@ -64,7 +150,7 @@
                     <td>
                         <strong>{{ tomo.serie.titulo }}</strong>
                         <span style="display: block; font-size: 0.8rem; color: var(--texto-secundario);">
-                            {{ tomo.serie.demografia.nombre }}
+                            {{ tomo.serie.demografia.nombre }} · {{ tomo.serie.autor.nombre }}
                         </span>
                     </td>
                     <td>
@@ -99,13 +185,13 @@
                 <tr>
                     <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
                         <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
-                            No hay tomos registrados en el inventario aún.
+                            No se encontraron tomos registrados con los criterios seleccionados.
                         </p>
                         <p style="font-size: 0.875rem; margin-bottom: 1.25rem;">
-                            Comienza agregando el primer tomo físico y su archivo de portada.
+                            Intenta ajustar los filtros de búsqueda o restablecerlos para ver el inventario completo.
                         </p>
-                        <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
-                            Registrar Primer Tomo
+                        <a href="{% url 'listar_tomos' %}" class="btn btn-secundario">
+                            Restablecer Filtros
                         </a>
                     </td>
                 </tr>
@@ -113,5 +199,44 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Paginación con preservación de filtros GET (Requisito 13.a) -->
+    {% if page_obj.has_other_pages %}
+    <div class="paginacion-contenedor">
+        <div class="paginacion-info">
+            Página <strong>{{ page_obj.number }}</strong> de <strong>{{ page_obj.paginator.num_pages }}</strong> 
+            (Total: {{ total_registros }} tomo{{ total_registros|pluralize }})
+        </div>
+        <div class="paginacion-nav">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}" 
+               class="pag-btn" title="Página anterior">&laquo; Anterior</a>
+            {% else %}
+            <span class="pag-btn deshabilitado">&laquo; Anterior</span>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="pag-btn activo">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if query_string %}&{{ query_string }}{% endif %}" class="pag-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}" 
+               class="pag-btn" title="Página siguiente">Siguiente &raquo;</a>
+            {% else %}
+            <span class="pag-btn deshabilitado">Siguiente &raquo;</span>
+            {% endif %}
+        </div>
+    </div>
+    {% elif total_registros > 0 %}
+    <div class="paginacion-contenedor">
+        <div class="paginacion-info">
+            Mostrando todos los registros ({{ total_registros }} tomo{{ total_registros|pluralize }})
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

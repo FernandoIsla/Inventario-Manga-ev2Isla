@@ -495,4 +495,155 @@ body.dark-mode .alerta-info {
     font-size: 1.15rem;
     font-weight: 800;
     color: var(--color-primario);
+}
+
+/* ========================================================
+   7. Filtros, Búsqueda, Exportación y Paginación (Fase 4)
+   ======================================================== */
+.panel-filtros {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--sombra);
+    margin-bottom: 1.5rem;
+}
+
+.filtros-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.filtros-header h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--texto-principal);
+}
+
+.filtros-grid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(auto-fit, minmax(160px, 1fr)) auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+@media (max-width: 900px) {
+    .filtros-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.campo-filtro label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--texto-secundario);
+    margin-bottom: 0.4rem;
+}
+
+.campo-filtro .form-control,
+.campo-filtro .form-select {
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--borde);
+    background-color: var(--bg-body);
+    color: var(--texto-principal);
+}
+
+.campo-filtro .form-control:focus,
+.campo-filtro .form-select:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.botones-filtro {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-excel {
+    background-color: #107c41;
+    color: #ffffff !important;
+}
+
+.btn-excel:hover {
+    background-color: #0b5a2f;
+    transform: translateY(-1px);
+}
+
+.btn-csv {
+    background-color: #475569;
+    color: #ffffff !important;
+}
+
+.btn-csv:hover {
+    background-color: #334155;
+    transform: translateY(-1px);
+}
+
+/* Paginación */
+.paginacion-contenedor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--borde);
+    background-color: var(--bg-card);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.paginacion-info {
+    font-size: 0.875rem;
+    color: var(--texto-secundario);
+}
+
+.paginacion-nav {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.pag-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.65rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--texto-principal);
+    background-color: var(--bg-body);
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.pag-btn:hover:not(.deshabilitado):not(.activo) {
+    background-color: var(--borde);
+    border-color: var(--texto-secundario);
+}
+
+.pag-btn.activo {
+    background-color: var(--color-primario);
+    border-color: var(--color-primario);
+    color: #ffffff !important;
+}
+
+.pag-btn.deshabilitado {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
 }

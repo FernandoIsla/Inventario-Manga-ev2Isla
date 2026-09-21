@@ -7,6 +7,8 @@ urlpatterns = [
     path('tomos/', views.listar_tomos, name='listar_tomos'),
     path('tomos/', views.listar_tomos, name='lista_tomos'),
     path('tomos/nuevo/', views.crear_tomo, name='crear_tomo'),
+    path('tomos/exportar/excel/', views.exportar_tomos_excel, name='exportar_tomos_excel'),
+    path('tomos/exportar/csv/', views.exportar_tomos_csv, name='exportar_tomos_csv'),
     path('tomos/editar/<int:pk>/', views.editar_tomo, name='editar_tomo'),
     path('tomos/eliminar/<int:pk>/', views.eliminar_tomo, name='eliminar_tomo'),
 
