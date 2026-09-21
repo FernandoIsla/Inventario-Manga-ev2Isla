@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión - MangaStock{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mensajes-contenedor" style="max-width: 440px; margin: 0 auto 1rem auto;">
+    {% for message in messages %}
+    <div class="alerta alerta-{{ message.tags }}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card-formulario" style="max-width: 440px; margin: 2rem auto;">
+    <h2 style="text-align: center; border-bottom: none; margin-bottom: 0.5rem;">
+        Iniciar Sesión
+    </h2>
+    <p style="text-align: center; color: var(--texto-secundario); font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Ingresa tus credenciales para acceder a la plataforma
+    </p>
+
+    {% if form.errors %}
+    <div class="alerta alerta-danger" style="margin-bottom: 1.25rem;">
+        <span>Usuario o contraseña incorrectos. Por favor verifica tus datos.</span>
+    </div>
+    {% endif %}
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+
+        <div class="campo-form">
+            <label for="{{ form.username.id_for_label }}">Usuario</label>
+            {{ form.username }}
+        </div>
+
+        <div class="campo-form">
+            <label for="{{ form.password.id_for_label }}">Contraseña</label>
+            {{ form.password }}
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primario" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                Ingresar al Sistema
+            </button>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--borde); font-size: 0.9rem; color: var(--texto-secundario);">
+            ¿No tienes una cuenta aún?
+            <a href="{% url 'registro' %}" style="color: var(--color-primario); font-weight: 600; text-decoration: none;">
+                Regístrate aquí
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

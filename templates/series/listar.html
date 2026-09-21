@@ -23,9 +23,11 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
+            {% if user.is_staff %}
             <a href="{% url 'crear_serie' %}" class="btn btn-primario">
                 Nueva Serie
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -38,7 +40,9 @@
                     <th>Demografía</th>
                     <th>Estado</th>
                     <th>Sinopsis</th>
+                    {% if user.is_staff %}
                     <th style="text-align: center;">Acciones</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -59,6 +63,7 @@
                     <td style="max-width: 320px; font-size: 0.85rem; color: var(--texto-secundario);">
                         {{ serie.sinopsis|default:"Sin sinopsis registrada"|truncatechars:100 }}
                     </td>
+                    {% if user.is_staff %}
                     <td style="text-align: center;">
                         <div style="display: inline-flex; gap: 0.4rem;">
                             <a href="{% url 'editar_serie' serie.pk %}" class="btn btn-sm btn-secundario">
@@ -69,6 +74,7 @@
                             </a>
                         </div>
                     </td>
+                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>

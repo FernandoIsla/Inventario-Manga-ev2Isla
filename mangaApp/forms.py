@@ -56,3 +56,70 @@ class DemografiaForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+
+# ==========================================
+# FORMULARIOS DE AUTENTICACIÓN Y REGISTRO
+# ==========================================
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
+class RegistroUsuarioForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=50,
+        required=True,
+        label="Nombre",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu nombre'})
+    )
+    last_name = forms.CharField(
+        max_length=50,
+        required=True,
+        label="Apellido",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tu apellido'})
+    )
+    email = forms.EmailField(
+        required=True,
+        label="Correo Electrónico",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@correo.com'})
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+        labels = {
+            'username': 'Nombre de Usuario',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Elige un nombre de usuario'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'password1' in self.fields:
+            self.fields['password1'].label = 'Contraseña'
+            self.fields['password1'].help_text = ''
+            self.fields['password1'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Contraseña segura'
+            })
+        if 'password2' in self.fields:
+            self.fields['password2'].label = 'Confirmar Contraseña'
+            self.fields['password2'].help_text = ''
+            self.fields['password2'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Repite tu contraseña'
+            })
+        self.error_messages['password_mismatch'] = 'Las contraseñas ingresadas no coinciden.'
+
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Nombre de usuario'
+        })
+        self.fields['password'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Contraseña'
+        })

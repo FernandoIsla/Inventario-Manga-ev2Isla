@@ -33,4 +33,9 @@ urlpatterns = [
     path('demografias/nuevo/', views.crear_demografia, name='crear_demografia'),
     path('demografias/editar/<int:pk>/', views.editar_demografia, name='editar_demografia'),
     path('demografias/eliminar/<int:pk>/', views.eliminar_demografia, name='eliminar_demografia'),
+
+    # Autenticación y Cuentas de Usuario
+    path('login/', views.iniciar_sesion, name='login'),
+    path('logout/', views.cerrar_sesion, name='logout'),
+    path('registro/', views.registro_usuario, name='registro'),
 ]

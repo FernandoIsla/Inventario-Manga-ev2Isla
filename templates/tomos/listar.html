@@ -24,9 +24,11 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
+            {% if user.is_staff %}
             <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
                 Nuevo Tomo
             </a>
+            {% endif %}
         </div>
     </div>
 
@@ -41,7 +43,9 @@
                     <th>ISBN</th>
                     <th>Precio</th>
                     <th>Stock</th>
+                    {% if user.is_staff %}
                     <th style="text-align: center;">Acciones</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -78,6 +82,7 @@
                         <span class="badge badge-danger">Agotado</span>
                         {% endif %}
                     </td>
+                    {% if user.is_staff %}
                     <td style="text-align: center;">
                         <div style="display: inline-flex; gap: 0.4rem;">
                             <a href="{% url 'editar_tomo' tomo.pk %}" class="btn btn-sm btn-secundario">
@@ -88,6 +93,7 @@
                             </a>
                         </div>
                     </td>
+                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
