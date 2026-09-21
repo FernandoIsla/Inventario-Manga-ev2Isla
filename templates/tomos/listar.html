@@ -15,108 +15,123 @@
 </div>
 {% endif %}
 
-<!-- Panel de Filtros y Búsqueda (Requisito 11) con Botones de Exportación (Requisitos 12 y 13.b) -->
-<div class="panel-filtros">
-    <div class="filtros-header">
-        <div>
-            <h3>Filtros y Búsqueda</h3>
-            <p style="color: var(--texto-secundario); font-size: 0.85rem; margin-top: 0.2rem;">
-                Filtra por serie, editorial, demografía o texto para afinar los resultados
-            </p>
-        </div>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <a href="{% url 'exportar_tomos_excel' %}{% if query_string %}?{{ query_string }}{% endif %}" 
-               class="btn btn-sm btn-excel" title="Descargar inventario en formato Excel (.xlsx)">
-                Exportar Excel (.xlsx)
-            </a>
-            <a href="{% url 'exportar_tomos_csv' %}{% if query_string %}?{{ query_string }}{% endif %}" 
-               class="btn btn-sm btn-csv" title="Descargar inventario en formato CSV (.csv)">
-                Exportar CSV (.csv)
-            </a>
-        </div>
-    </div>
+<div class="inventario-layout">
+    <!-- Barra Lateral Izquierda: Búsqueda y Filtros Sticky (Requisito 11) -->
+    <aside class="inventario-sidebar">
+        <form method="GET" action="{% url 'listar_tomos' %}" class="panel-filtros-vertical">
+            <div class="sidebar-campos">
+                <!-- Sección Búsqueda -->
+                <div class="sidebar-seccion">
+                    <h3 class="sidebar-titulo">Búsqueda</h3>
+                    <div class="campo-filtro">
+                        <input type="text" id="id_q" name="q" value="{{ filtro_q }}" 
+                               placeholder="Título, autor o ISBN..." class="form-control">
+                    </div>
+                </div>
 
-    <form method="GET" action="{% url 'listar_tomos' %}">
-        <div class="filtros-grid">
-            <div class="campo-filtro">
-                <label for="id_q">Buscar</label>
-                <input type="text" id="id_q" name="q" value="{{ filtro_q }}" 
-                       placeholder="Título, autor o ISBN..." class="form-control">
+                <div class="sidebar-divisor"></div>
+
+                <!-- Sección Filtros -->
+                <div class="sidebar-seccion">
+                    <h3 class="sidebar-titulo">Filtros</h3>
+
+                    <div class="campo-filtro">
+                        <label for="id_serie">Serie</label>
+                        <select id="id_serie" name="serie" class="form-select">
+                            <option value="">Todas las series</option>
+                            {% for s in series %}
+                            <option value="{{ s.id }}" {% if filtro_serie == s.id|stringformat:"i" %}selected{% endif %}>
+                                {{ s.titulo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="id_editorial">Editorial</label>
+                        <select id="id_editorial" name="editorial" class="form-select">
+                            <option value="">Todas</option>
+                            {% for ed in editoriales %}
+                            <option value="{{ ed.id }}" {% if filtro_editorial == ed.id|stringformat:"i" %}selected{% endif %}>
+                                {{ ed.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="id_demografia">Demografía</label>
+                        <select id="id_demografia" name="demografia" class="form-select">
+                            <option value="">Todas</option>
+                            {% for d in demografias %}
+                            <option value="{{ d.id }}" {% if filtro_demografia == d.id|stringformat:"i" %}selected{% endif %}>
+                                {{ d.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="campo-filtro">
+                        <label for="id_stock">Disponibilidad</label>
+                        <select id="id_stock" name="stock" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="disponible" {% if filtro_stock == 'disponible' %}selected{% endif %}>En stock</option>
+                            <option value="agotado" {% if filtro_stock == 'agotado' %}selected{% endif %}>Agotados</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <div class="campo-filtro">
-                <label for="id_serie">Serie</label>
-                <select id="id_serie" name="serie" class="form-select">
-                    <option value="">Todas las series</option>
-                    {% for s in series %}
-                    <option value="{{ s.id }}" {% if filtro_serie == s.id|stringformat:"i" %}selected{% endif %}>
-                        {{ s.titulo }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="campo-filtro">
-                <label for="id_editorial">Editorial</label>
-                <select id="id_editorial" name="editorial" class="form-select">
-                    <option value="">Todas</option>
-                    {% for ed in editoriales %}
-                    <option value="{{ ed.id }}" {% if filtro_editorial == ed.id|stringformat:"i" %}selected{% endif %}>
-                        {{ ed.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="campo-filtro">
-                <label for="id_demografia">Demografía</label>
-                <select id="id_demografia" name="demografia" class="form-select">
-                    <option value="">Todas</option>
-                    {% for d in demografias %}
-                    <option value="{{ d.id }}" {% if filtro_demografia == d.id|stringformat:"i" %}selected{% endif %}>
-                        {{ d.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="campo-filtro">
-                <label for="id_stock">Disponibilidad</label>
-                <select id="id_stock" name="stock" class="form-select">
-                    <option value="">Todos</option>
-                    <option value="disponible" {% if filtro_stock == 'disponible' %}selected{% endif %}>En stock</option>
-                    <option value="agotado" {% if filtro_stock == 'agotado' %}selected{% endif %}>Agotados</option>
-                </select>
-            </div>
-
-            <div class="botones-filtro">
-                <button type="submit" class="btn btn-sm btn-primario" style="height: 38px;">
+            <div class="botones-filtro-vertical">
+                <button type="submit" class="btn btn-sm btn-primario" style="justify-content: center; height: 38px;">
                     Filtrar
                 </button>
-                <a href="{% url 'listar_tomos' %}" class="btn btn-sm btn-secundario" style="height: 38px;">
+                <a href="{% url 'listar_tomos' %}" class="btn btn-sm btn-secundario" style="justify-content: center; height: 38px;">
                     Limpiar
                 </a>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </aside>
 
-<div class="tabla-contenedor">
-    <div class="tabla-header-bar">
-        <div>
-            <h2>Inventario General de Tomos</h2>
-            <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
-                Mostrando {{ tomos|length }} de {{ total_registros }} tomo{{ total_registros|pluralize }} encontrado{{ total_registros|pluralize }}
-            </p>
-        </div>
-        <div style="display: flex; gap: 0.75rem; align-items: center;">
-            {% if user.is_staff %}
-            <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
-                Nuevo Tomo
-            </a>
-            {% endif %}
-        </div>
-    </div>
+    <!-- Contenido Principal: Inventario de Tomos -->
+    <section class="inventario-main">
+        <div class="tabla-contenedor">
+            <!-- Piso 1: Título y Acción Principal (Nuevo Tomo) -->
+            <div class="tabla-header-bar">
+                <div>
+                    <h2>Inventario</h2>
+                    <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
+                        Control y administración de tomos de manga
+                    </p>
+                </div>
+                <div>
+                    {% if user.is_staff %}
+                    <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
+                        Nuevo Tomo
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Piso 2: Sub-barra de Herramientas y Menú Exportar -->
+            <div class="tabla-sub-bar">
+                <span class="sub-bar-info">
+                    Mostrando <strong>{{ tomos|length }}</strong> de <strong>{{ total_registros }}</strong> tomo{{ total_registros|pluralize }} encontrado{{ total_registros|pluralize }}
+                </span>
+                <div class="dropdown-exportar">
+                    <button type="button" class="btn btn-sm btn-exportar-dropdown" id="btn-exportar" aria-haspopup="true" aria-expanded="false">
+                        Exportar ▾
+                    </button>
+                    <div class="dropdown-menu-exportar" id="menu-exportar">
+                        <a href="{% url 'exportar_tomos_excel' %}{% if query_string %}?{{ query_string }}{% endif %}" class="item-excel">
+                            Descargar Excel (.xlsx)
+                        </a>
+                        <a href="{% url 'exportar_tomos_csv' %}{% if query_string %}?{{ query_string }}{% endif %}" class="item-csv">
+                            Descargar CSV (.csv)
+                        </a>
+                    </div>
+                </div>
+            </div>
 
     <div class="tabla-responsive">
         <table class="tabla-datos">
@@ -238,5 +253,21 @@
         </div>
     </div>
     {% endif %}
+        </div>
+    </section>
 </div>
+
+<script>
+    const btnExportar = document.getElementById('btn-exportar');
+    const menuExportar = document.getElementById('menu-exportar');
+    if (btnExportar && menuExportar) {
+        btnExportar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menuExportar.classList.toggle('abierto');
+        });
+        document.addEventListener('click', () => {
+            menuExportar.classList.remove('abierto');
+        });
+    }
+</script>
 {% endblock %}

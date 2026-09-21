@@ -22,12 +22,12 @@
             <a href="{% url 'inicio' %}" class="logo">MangaStock</a>
 
             <nav class="nav-links">
-                <a href="{% url 'inicio' %}">Inicio</a>
-                <a href="{% url 'listar_tomos' %}">Inventario</a>
-                <a href="{% url 'listar_series' %}">Series</a>
-                <a href="{% url 'listar_autores' %}">Autores</a>
-                <a href="{% url 'listar_editoriales' %}">Editoriales</a>
-                <a href="{% url 'listar_demografias' %}">Demografías</a>
+                <a href="{% url 'inicio' %}" class="{% if request.path == '/' %}activo{% endif %}">Inicio</a>
+                <a href="{% url 'listar_tomos' %}" class="{% if '/tomos/' in request.path %}activo{% endif %}">Inventario</a>
+                <a href="{% url 'listar_series' %}" class="{% if '/series/' in request.path %}activo{% endif %}">Series</a>
+                <a href="{% url 'listar_autores' %}" class="{% if '/autores/' in request.path %}activo{% endif %}">Autores</a>
+                <a href="{% url 'listar_editoriales' %}" class="{% if '/editoriales/' in request.path %}activo{% endif %}">Editoriales</a>
+                <a href="{% url 'listar_demografias' %}" class="{% if '/demografias/' in request.path %}activo{% endif %}">Demografías</a>
 
                 {% if user.is_authenticated %}
                 <span class="user-badge" style="font-weight: 600;">
@@ -42,8 +42,10 @@
                 <a href="{% url 'registro' %}" class="btn btn-sm btn-primario" style="margin-left: 0.25rem;">Registrarse</a>
                 {% endif %}
 
-                <!-- Botón de cambio de tema -->
-                <button id="btn-tema" class="btn-tema" title="Cambiar tema">🌙</button>
+                <!-- Botón de cambio de tema con círculo minimalista -->
+                <button id="btn-tema" class="btn-tema" title="Alternar tema claro / oscuro">
+                    <span class="circulo-tema"></span>
+                </button>
             </nav>
         </div>
     </header>
@@ -66,20 +68,14 @@
         // Si el usuario ya lo tenía en oscuro previamente, aplicarlo de inmediato
         if (temaActual === 'oscuro') {
             document.body.classList.add('dark-mode');
-            btnTema.textContent = '☀️';
         }
 
         btnTema.addEventListener('click', () => {
-            // Alterna la clase dark-mode en el body
             document.body.classList.toggle('dark-mode');
-
-            // Revisa si quedó activo el modo oscuro para recordarlo
             if (document.body.classList.contains('dark-mode')) {
                 localStorage.setItem('tema', 'oscuro');
-                btnTema.textContent = '☀️';
             } else {
                 localStorage.setItem('tema', 'claro');
-                btnTema.textContent = '🌙';
             }
         });
     </script>

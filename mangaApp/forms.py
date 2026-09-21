@@ -10,12 +10,18 @@ class TomoForm(forms.ModelForm):
         widgets = {
             'serie': forms.Select(attrs={'class': 'form-select'}),
             'editorial': forms.Select(attrs={'class': 'form-select'}),
-            'numero_tomo': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
+            'numero_tomo': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'placeholder': 'Ej: 1'}),
             'isbn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 978-84-123456-7-8'}),
-            'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-            'archivo_portada': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '1', 'placeholder': 'Ej: 11990'}),
+            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': 'Ej: 10'}),
+            'archivo_portada': forms.FileInput(attrs={'class': 'upload-input', 'id': 'id_archivo_portada', 'accept': 'image/*,.pdf'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si es un nuevo tomo a crear, no precargar el 0 por defecto del modelo
+        if not self.instance.pk:
+            self.fields['stock'].initial = None
 
 # Formularios para los otros modelos auxiliares
 class SerieForm(forms.ModelForm):

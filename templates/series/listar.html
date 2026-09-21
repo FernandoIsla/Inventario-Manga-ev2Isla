@@ -35,9 +35,10 @@
         <table class="tabla-datos">
             <thead>
                 <tr>
-                    <th>Título de la Serie</th>
+                    <th>Series</th>
                     <th>Autor</th>
                     <th>Demografía</th>
+                    <th style="text-align: center;">Tomos</th>
                     <th>Estado</th>
                     <th>Sinopsis</th>
                     {% if user.is_staff %}
@@ -51,6 +52,9 @@
                     <td><strong>{{ serie.titulo }}</strong></td>
                     <td>{{ serie.autor.nombre }}</td>
                     <td><span class="badge badge-info">{{ serie.demografia.nombre }}</span></td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ serie.num_tomos }} tomo{{ serie.num_tomos|pluralize }}</span>
+                    </td>
                     <td>
                         {% if serie.estado == 'FINALIZADO' %}
                         <span class="badge badge-success">Finalizado</span>
@@ -78,7 +82,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                    <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
                         <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
                             No hay series registradas aún.
                         </p>

@@ -6,14 +6,12 @@
 
 <!-- Hero Banner -->
 <section style="background-color: var(--bg-card); padding: 2.75rem 2rem; border-radius: 10px; border: 1px solid var(--borde); box-shadow: var(--sombra); text-align: center;">
-    <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-primario); text-transform: uppercase; letter-spacing: 0.12em; display: inline-block; margin-bottom: 0.6rem;">
-        Control de Existencias &bull; Gestión Editorial
-    </span>
-    <h1 style="font-size: 2.1rem; font-weight: 800; margin-bottom: 0.85rem; color: var(--texto-principal); letter-spacing: -0.02em;">
-        Sistema de Control de Inventario
+    <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.85rem; color: var(--texto-principal); letter-spacing: -0.02em;">
+        Control de Inventario MangaStock
     </h1>
-    <p style="font-size: 1.05rem; color: var(--texto-secundario); max-width: 620px; margin: 0 auto 1.75rem auto; line-height: 1.6;">
-        Plataforma administrativa para la supervisión de existencias físicas, administración de catálogos y registro de tomos.
+    <p style="font-size: 1.05rem; color: var(--texto-secundario); max-width: 680px; margin: 0 auto 1.75rem auto; line-height: 1.6;">
+        Gestiona el inventario de tomos físicos, series y editoriales<br>
+        Consulta existencias, actualiza el stock y mantén tu catálogo al día
     </p>
 
     <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
@@ -28,12 +26,13 @@
     </div>
 </section>
 
-<!-- Tarjetas de Métricas -->
+<!-- Tarjetas de Métricas de Catálogo -->
 <div class="metricas-grid">
     <div class="metrica-card">
         <div class="metrica-info">
-            <h3>Tomos en Stock</h3>
+            <h3>Tomos en Inventario</h3>
             <p>{{ total_tomos }}</p>
+            <span class="metrica-subtexto">Volúmenes Registrados</span>
         </div>
     </div>
 
@@ -41,17 +40,23 @@
         <div class="metrica-info">
             <h3>Series Registradas</h3>
             <p>{{ total_series }}</p>
+            <span class="metrica-subtexto">Obras en Catálogo</span>
         </div>
     </div>
 
     <div class="metrica-card">
         <div class="metrica-info">
-            <h3>Administración</h3>
-            <p style="font-size: 1rem; margin-top: 0.4rem; font-weight: 600;">
-                <a href="{% url 'listar_tomos' %}" style="color: var(--color-primario); text-decoration: none;">
-                    Ir al Inventario &rarr;
-                </a>
-            </p>
+            <h3>Autores Registrados</h3>
+            <p>{{ total_autores }}</p>
+            <span class="metrica-subtexto">Mangakas y Escritores</span>
+        </div>
+    </div>
+
+    <div class="metrica-card">
+        <div class="metrica-info">
+            <h3>Editoriales</h3>
+            <p>{{ total_editoriales }}</p>
+            <span class="metrica-subtexto">{% for ed in editoriales %}{{ ed.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
         </div>
     </div>
 </div>

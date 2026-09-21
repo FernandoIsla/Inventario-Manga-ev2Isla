@@ -37,7 +37,9 @@
                 <tr>
                     <th>Nombre Editorial</th>
                     <th>País de Origen</th>
-                    <th>Tomos Publicados</th>
+                    <th style="text-align: center;">Series</th>
+                    <th style="text-align: center;">Tomos</th>
+                    <th style="text-align: center;">Autores</th>
                     {% if user.is_staff %}
                     <th style="text-align: center;">Acciones</th>
                     {% endif %}
@@ -48,8 +50,14 @@
                 <tr>
                     <td><strong>{{ editorial.nombre }}</strong></td>
                     <td>{{ editorial.pais_origen|default:"No especificado" }}</td>
-                    <td>
-                        <span class="badge badge-info">{{ editorial.tomos.count }} tomos</span>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ editorial.num_series }} serie{{ editorial.num_series|pluralize }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ editorial.num_tomos }} tomo{{ editorial.num_tomos|pluralize }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ editorial.num_autores }} autor{{ editorial.num_autores|pluralize:"es" }}</span>
                     </td>
                     {% if user.is_staff %}
                     <td style="text-align: center;">
@@ -66,7 +74,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                    <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
                         <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
                             No hay editoriales registradas.
                         </p>

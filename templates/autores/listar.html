@@ -37,7 +37,8 @@
                 <tr>
                     <th>Nombre Completo</th>
                     <th>Nacionalidad</th>
-                    <th>Series Vinculadas</th>
+                    <th style="text-align: center;">Series</th>
+                    <th style="text-align: center;">Tomos</th>
                     {% if user.is_staff %}
                     <th style="text-align: center;">Acciones</th>
                     {% endif %}
@@ -48,8 +49,11 @@
                 <tr>
                     <td><strong>{{ autor.nombre }}</strong></td>
                     <td>{{ autor.nacionalidad|default:"No especificada" }}</td>
-                    <td>
-                        <span class="badge badge-info">{{ autor.series.count }} series</span>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ autor.num_series }} serie{{ autor.num_series|pluralize }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="badge badge-info">{{ autor.num_tomos }} tomo{{ autor.num_tomos|pluralize }}</span>
                     </td>
                     {% if user.is_staff %}
                     <td style="text-align: center;">
@@ -66,7 +70,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                    <td colspan="5" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
                         <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
                             No hay autores registrados.
                         </p>

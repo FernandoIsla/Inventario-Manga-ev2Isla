@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.http import HttpResponse
-from django.db.models import Q, Value
+from django.db.models import Q, Value, Count
 from django.db.models.functions import Lower, Replace
 from django.core.paginator import Paginator
 from .models import Tomo, Serie, Autor, Editorial, Demografia
@@ -32,11 +32,17 @@ def solo_admin(view_func):
 def pagina_inicio(request):
     total_tomos = Tomo.objects.count()
     total_series = Serie.objects.count()
+    total_autores = Autor.objects.count()
+    total_editoriales = Editorial.objects.count()
+    editoriales = Editorial.objects.all().order_by('nombre')
     ultimos_tomos = Tomo.objects.select_related('serie', 'editorial').order_by('-id')[:4]
     
     return render(request, 'inicio.html', {
         'total_tomos': total_tomos,
         'total_series': total_series,
+        'total_autores': total_autores,
+        'total_editoriales': total_editoriales,
+        'editoriales': editoriales,
         'ultimos_tomos': ultimos_tomos,
     })
 
@@ -117,8 +123,8 @@ def obtener_tomos_filtrados(request):
 def listar_tomos(request):
     tomos_list = obtener_tomos_filtrados(request)
     
-    # Paginación: 5 registros por página (Requisito 13.a)
-    paginator = Paginator(tomos_list, 5)
+    # Paginación: 10 registros por página (Requisito 13.a)
+    paginator = Paginator(tomos_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -302,7 +308,9 @@ def eliminar_tomo(request, pk):
 # CRUD: SERIE
 # ==========================================
 def listar_series(request):
-    series = Serie.objects.select_related('demografia', 'autor').all()
+    series = Serie.objects.select_related('demografia', 'autor').annotate(
+        num_tomos=Count('tomos', distinct=True)
+    ).all().order_by('titulo')
     return render(request, 'series/listar.html', {'series': series})
 
 @solo_admin
@@ -344,7 +352,10 @@ def eliminar_serie(request, pk):
 # CRUD: AUTOR
 # ==========================================
 def listar_autores(request):
-    autores = Autor.objects.all()
+    autores = Autor.objects.annotate(
+        num_series=Count('series', distinct=True),
+        num_tomos=Count('series__tomos', distinct=True)
+    ).all().order_by('nombre')
     return render(request, 'autores/listar.html', {'autores': autores})
 
 @solo_admin
@@ -386,7 +397,11 @@ def eliminar_autor(request, pk):
 # CRUD: EDITORIAL
 # ==========================================
 def listar_editoriales(request):
-    editoriales = Editorial.objects.all()
+    editoriales = Editorial.objects.annotate(
+        num_tomos=Count('tomos', distinct=True),
+        num_series=Count('tomos__serie', distinct=True),
+        num_autores=Count('tomos__serie__autor', distinct=True)
+    ).all().order_by('nombre')
     return render(request, 'editoriales/listar.html', {'editoriales': editoriales})
 
 @solo_admin
@@ -428,7 +443,11 @@ def eliminar_editorial(request, pk):
 # CRUD: DEMOGRAFIA
 # ==========================================
 def listar_demografias(request):
-    demografias = Demografia.objects.all()
+    demografias = Demografia.objects.annotate(
+        num_series=Count('series', distinct=True),
+        num_tomos=Count('series__tomos', distinct=True),
+        num_autores=Count('series__autor', distinct=True)
+    ).all().order_by('nombre')
     return render(request, 'demografias/listar.html', {'demografias': demografias})
 
 @solo_admin
