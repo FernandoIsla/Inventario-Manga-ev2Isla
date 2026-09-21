@@ -6,17 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gestión de Mangas{% endblock %}</title>
-    <!-- Google Font: Geist Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Vinculamos nuestro CSS propio -->
     <link rel="stylesheet" href="{% static 'mangaApp/estilos.css' %}">
 </head>
 
 <body>
 
-    <!-- Barra de navegación superior -->
     <header class="navbar">
         <div class="nav-container">
             <a href="{% url 'inicio' %}" class="logo">MangaStock</a>
@@ -42,7 +39,6 @@
                 <a href="{% url 'registro' %}" class="btn btn-sm btn-primario" style="margin-left: 0.25rem;">Registrarse</a>
                 {% endif %}
 
-                <!-- Botón de cambio de tema con círculo minimalista -->
                 <button id="btn-tema" class="btn-tema" title="Alternar tema claro / oscuro">
                     <span class="circulo-tema"></span>
                 </button>
@@ -50,7 +46,6 @@
         </div>
     </header>
 
-    <!-- Contenedor principal donde entra el contenido de cada página -->
     <main class="contenedor-principal">
         {% if messages %}
         <div class="mensajes-contenedor">
@@ -71,12 +66,10 @@
         <p>Evaluación 2 Back End</p>
     </footer>
 
-    <!-- JavaScript para el Modo Claro / Modo Oscuro -->
     <script>
         const btnTema = document.getElementById('btn-tema');
         const temaActual = localStorage.getItem('tema');
 
-        // Si el usuario ya lo tenía en oscuro previamente, aplicarlo de inmediato
         if (temaActual === 'oscuro') {
             document.body.classList.add('dark-mode');
         }

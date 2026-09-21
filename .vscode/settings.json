@@ -1,10 +1,17 @@
 {
     "python.defaultInterpreterPath": "${workspaceFolder}/env/Scripts/python.exe",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}"
+    ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}"
+    ],
     "python.analysis.typeCheckingMode": "off",
     "python.analysis.diagnosticSeverityOverrides": {
         "reportGeneralTypeIssues": "none",
         "reportOptionalMemberAccess": "none",
-        "reportAttributeAccessIssue": "none"
+        "reportAttributeAccessIssue": "none",
+        "reportMissingImports": "none"
     },
     "files.associations": {
         "*.html": "django-html"

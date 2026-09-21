@@ -4,7 +4,6 @@
 
 {% block content %}
 
-<!-- Hero Banner -->
 <section style="background-color: var(--bg-card); padding: 2.75rem 2rem; border-radius: 10px; border: 1px solid var(--borde); box-shadow: var(--sombra); text-align: center;">
     <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 0.85rem; color: var(--texto-principal); letter-spacing: -0.02em;">
         Control de Inventario MangaStock
@@ -26,7 +25,6 @@
     </div>
 </section>
 
-<!-- Tarjetas de Métricas de Catálogo -->
 <div class="metricas-grid">
     <div class="metrica-card">
         <div class="metrica-info">
@@ -61,7 +59,6 @@
     </div>
 </div>
 
-<!-- Últimos Tomos Registrados -->
 <section style="margin-top: 2.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
         <div>
@@ -70,7 +67,6 @@
             </h2>
         </div>
         <div style="display: flex; align-items: center; gap: 0.85rem;">
-            <!-- Menú Desplegable Discreto de Filtrado -->
             <div class="dropdown-filtrar-contenedor">
                 <button type="button" class="btn-filtrar-dropdown {% if filtros_activos %}activo{% endif %}" id="btn-filtrar-series" aria-haspopup="true" aria-expanded="false" title="Filtrar por demografía, editorial o autor">
                     {% if filtros_activos %}<span class="filtro-indicador-punto"></span>{% endif %}
@@ -129,7 +125,6 @@
         </div>
     </div>
 
-    <!-- Contenedor Dinámico de Series (Se actualiza vía AJAX sin recargar la página) -->
     <div id="contenedor-dinamico-series" style="transition: opacity 0.15s ease;">
         <div class="mangas-grid">
             {% for item in series %}
@@ -193,7 +188,6 @@
             {% endfor %}
         </div>
 
-        <!-- Paginación de Series (Visible para evaluación y control de catálogo) -->
         {% if total_series > 0 %}
         <div class="paginacion-contenedor" style="margin-top: 2rem;">
             <div class="paginacion-info">

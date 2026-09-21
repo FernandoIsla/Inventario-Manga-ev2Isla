@@ -16,7 +16,6 @@ from .forms import (
     RegistroUsuarioForm, LoginForm
 )
 
-# Decorador para limitar acciones solo a usuarios con rol Administrador
 def solo_admin(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -30,7 +29,6 @@ def solo_admin(view_func):
     return wrapper
 
 class EdicionSerieItem:
-    """Representa una tarjeta de serie por edición/editorial en la vitrina de inicio."""
     def __init__(self, serie, editorial, total_volumenes, total_stock, portada_url):
         self.serie = serie
         self.editorial = editorial
@@ -58,7 +56,6 @@ class EdicionSerieItem:
             url += f"&editorial={self.editorial.id}"
         return url
 
-# 1. Página inicial (muestra resumen y catálogo de series registradas con filtros)
 def pagina_inicio(request):
     total_tomos = Tomo.objects.count()
     total_series = Serie.objects.count()
@@ -69,19 +66,16 @@ def pagina_inicio(request):
     editoriales = Editorial.objects.all().order_by('nombre')
     autores = Autor.objects.all().order_by('nombre')
     
-    # Parámetros de filtrado
     filtro_demografia = request.GET.get('demografia', '').strip()
     filtro_editorial = request.GET.get('editorial', '').strip()
     filtro_autor = request.GET.get('autor', '').strip()
     
-    # Consulta base de series
     series_qs = Serie.objects.select_related('autor', 'demografia', 'tomo_portada').order_by('titulo')
     if filtro_demografia:
         series_qs = series_qs.filter(demografia_id=filtro_demografia)
     if filtro_autor:
         series_qs = series_qs.filter(autor_id=filtro_autor)
 
-    # Combinaciones de tomos por serie y editorial
     combos_qs = Tomo.objects.filter(serie__in=series_qs)
     if filtro_editorial:
         combos_qs = combos_qs.filter(editorial_id=filtro_editorial)
@@ -96,7 +90,6 @@ def pagina_inicio(request):
         .order_by('serie__titulo', 'editorial__nombre')
     )
 
-    # Mapa de portadas precargado en 1 sola consulta
     tomos_con_portada = (
         Tomo.objects.filter(serie__in=series_qs, archivo_portada__isnull=False)
         .exclude(archivo_portada='')
@@ -123,7 +116,6 @@ def pagina_inicio(request):
         editorial = editoriales_dict.get(c['editorial_id'])
         series_con_tomos.add(serie.id)
 
-        # Portada: Tomo asignado como portada para esta editorial o primer tomo disponible
         portada_url = None
         if serie.tomo_portada and serie.tomo_portada.editorial_id == (editorial.id if editorial else None) and serie.tomo_portada.archivo_portada:
             try:
@@ -141,7 +133,6 @@ def pagina_inicio(request):
             portada_url=portada_url
         ))
 
-    # Incluir series sin tomos si no hay filtro de editorial activo
     if not filtro_editorial:
         for s in series_qs:
             if s.id not in series_con_tomos:
@@ -156,13 +147,11 @@ def pagina_inicio(request):
     filtros_activos = bool(filtro_demografia or filtro_editorial or filtro_autor)
     total_series_filtradas = len(cards_list)
     
-    # Construir query string para paginación preservando filtros
     params = request.GET.copy()
     if 'page' in params:
         del params['page']
     query_string = params.urlencode()
     
-    # Paginación a 24 tarjetas por página
     paginator = Paginator(cards_list, 24)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -185,18 +174,11 @@ def pagina_inicio(request):
         'query_string': query_string,
     })
 
-# Función auxiliar para filtrar tomos según parámetros GET (Requisito 11)
 def obtener_tomos_filtrados(request):
-    """
-    Retorna un queryset de Tomo filtrado según los parámetros GET recibidos.
-    Se reutiliza en listar_tomos, exportar_tomos_excel y exportar_tomos_csv.
-    """
     queryset = Tomo.objects.select_related('serie', 'editorial', 'serie__demografia', 'serie__autor').order_by('-id')
 
-    # Búsqueda por texto (Título de serie, ISBN, Autor o Editorial)
     q = request.GET.get('q', '').strip()
     if q:
-        # Normalizar columnas en la consulta (sin espacios, sin guiones, minúsculas)
         queryset = queryset.annotate(
             titulo_sin_espacios=Replace(Lower('serie__titulo'), Value(' '), Value('')),
             autor_sin_espacios=Replace(Lower('serie__autor__nombre'), Value(' '), Value('')),
@@ -207,7 +189,6 @@ def obtener_tomos_filtrados(request):
         q_str = q.lower()
         q_sin_espacios = q_str.replace(' ', '').replace('-', '')
 
-        # Filtro flexible: coincide con o sin espacios, mayúsculas o minúsculas
         filtro_texto = (
             Q(serie__titulo__icontains=q) |
             Q(titulo_sin_espacios__icontains=q_sin_espacios) |
@@ -220,7 +201,6 @@ def obtener_tomos_filtrados(request):
             Q(isbn_sin_guiones__icontains=q_sin_espacios)
         )
 
-        # Si el usuario escribió varias palabras (ej: 'chainsaw man' o 'man chainsaw')
         palabras = q.split()
         if len(palabras) > 1:
             for p in palabras:
@@ -234,22 +214,18 @@ def obtener_tomos_filtrados(request):
 
         queryset = queryset.filter(filtro_texto).distinct()
 
-    # Filtro por Serie
     serie_id = request.GET.get('serie')
     if serie_id:
         queryset = queryset.filter(serie_id=serie_id)
 
-    # Filtro por Editorial
     editorial_id = request.GET.get('editorial')
     if editorial_id:
         queryset = queryset.filter(editorial_id=editorial_id)
 
-    # Filtro por Demografía
     demografia_id = request.GET.get('demografia')
     if demografia_id:
         queryset = queryset.filter(serie__demografia_id=demografia_id)
 
-    # Filtro por Stock
     stock_estado = request.GET.get('stock')
     if stock_estado == 'disponible':
         queryset = queryset.filter(stock__gt=0)
@@ -258,35 +234,30 @@ def obtener_tomos_filtrados(request):
 
     return queryset
 
-# 2. Leer / Listar: Muestra la tabla con filtros y paginación (Requisitos 11 y 13.a)
 def listar_tomos(request):
     tomos_list = obtener_tomos_filtrados(request)
     
-    # Paginación: 10 registros por página (Requisito 13.a)
     paginator = Paginator(tomos_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # Preservar filtros GET activos en la navegación de páginas
     query_dict = request.GET.copy()
     if 'page' in query_dict:
         del query_dict['page']
     query_string = query_dict.urlencode()
     
-    # Opciones para los filtros desplegables
     series = Serie.objects.all().order_by('titulo')
     editoriales = Editorial.objects.all().order_by('nombre')
     demografias = Demografia.objects.all().order_by('nombre')
     
     context = {
         'page_obj': page_obj,
-        'tomos': page_obj, # Para compatibilidad con templates
+        'tomos': page_obj,
         'total_registros': tomos_list.count(),
         'query_string': query_string,
         'series': series,
         'editoriales': editoriales,
         'demografias': demografias,
-        # Parámetros seleccionados para mantener estado en el formulario
         'filtro_q': request.GET.get('q', ''),
         'filtro_serie': request.GET.get('serie', ''),
         'filtro_editorial': request.GET.get('editorial', ''),
@@ -295,7 +266,6 @@ def listar_tomos(request):
     }
     return render(request, 'tomos/listar.html', context)
 
-# Exportar a Excel con formato profesional (Requisito 12)
 def exportar_tomos_excel(request):
     tomos = obtener_tomos_filtrados(request)
     
@@ -303,7 +273,6 @@ def exportar_tomos_excel(request):
     ws = wb.active
     ws.title = "Inventario Manga"
     
-    # Estilos profesionales
     header_fill = PatternFill(start_color="18181B", end_color="18181B", fill_type="solid")
     header_font = Font(name="Arial", size=11, bold=True, color="FFFFFF")
     data_font = Font(name="Arial", size=10)
@@ -375,7 +344,6 @@ def exportar_tomos_excel(request):
     wb.save(response)
     return response
 
-# Exportar a CSV con UTF-8 BOM para soporte total en Excel (Requisito 13.b)
 def exportar_tomos_csv(request):
     tomos = obtener_tomos_filtrados(request)
     
@@ -404,11 +372,9 @@ def exportar_tomos_csv(request):
         
     return response
 
-# 3. Crear Tomo: Procesa el formulario con el archivo adjunto
 @solo_admin
 def crear_tomo(request):
     if request.method == 'POST':
-        # request.FILES es indispensable para recibir la imagen o archivo
         form = TomoForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
@@ -418,7 +384,6 @@ def crear_tomo(request):
         form = TomoForm()
     return render(request, 'tomos/formulario.html', {'form': form, 'titulo': 'Agregar Nuevo Tomo'})
 
-# 4. Actualizar / Editar Tomo
 @solo_admin
 def editar_tomo(request, pk):
     tomo = get_object_or_404(Tomo, pk=pk)
@@ -432,7 +397,6 @@ def editar_tomo(request, pk):
         form = TomoForm(instance=tomo)
     return render(request, 'tomos/formulario.html', {'form': form, 'titulo': f'Editar Tomo #{tomo.numero_tomo} - {tomo.serie.titulo}'})
 
-# 5. Eliminar Tomo
 @solo_admin
 def eliminar_tomo(request, pk):
     tomo = get_object_or_404(Tomo, pk=pk)
@@ -443,9 +407,6 @@ def eliminar_tomo(request, pk):
     return render(request, 'tomos/confirmar_eliminar.html', {'tomo': tomo})
 
 
-# ==========================================
-# CRUD: SERIE
-# ==========================================
 def listar_series(request):
     series = Serie.objects.select_related('demografia', 'autor').annotate(
         num_tomos=Count('tomos', distinct=True)
@@ -487,9 +448,6 @@ def eliminar_serie(request, pk):
     return render(request, 'series/confirmar_eliminar.html', {'serie': serie})
 
 
-# ==========================================
-# CRUD: AUTOR
-# ==========================================
 def listar_autores(request):
     autores = Autor.objects.annotate(
         num_series=Count('series', distinct=True),
@@ -532,9 +490,6 @@ def eliminar_autor(request, pk):
     return render(request, 'autores/confirmar_eliminar.html', {'autor': autor})
 
 
-# ==========================================
-# CRUD: EDITORIAL
-# ==========================================
 def listar_editoriales(request):
     editoriales = Editorial.objects.annotate(
         num_tomos=Count('tomos', distinct=True),
@@ -578,9 +533,6 @@ def eliminar_editorial(request, pk):
     return render(request, 'editoriales/confirmar_eliminar.html', {'editorial': editorial})
 
 
-# ==========================================
-# CRUD: DEMOGRAFIA
-# ==========================================
 def listar_demografias(request):
     demografias = Demografia.objects.annotate(
         num_series=Count('series', distinct=True),
@@ -624,9 +576,6 @@ def eliminar_demografia(request, pk):
     return render(request, 'demografias/confirmar_eliminar.html', {'demografia': demografia})
 
 
-# ==========================================
-# AUTENTICACIÓN Y CONTROL DE ACCESO
-# ==========================================
 def iniciar_sesion(request):
     if request.user.is_authenticated:
         return redirect('inicio')
@@ -661,7 +610,6 @@ def registro_usuario(request):
         form = RegistroUsuarioForm(request.POST)
         if form.is_valid():
             nuevo_usuario = form.save(commit=False)
-            # Todo nuevo usuario registrado inicia como Operador (sin permisos de staff/admin)
             nuevo_usuario.is_staff = False
             nuevo_usuario.is_superuser = False
             nuevo_usuario.save()

@@ -1,12 +1,12 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Demografia, Autor, Editorial, Serie, Tomo
 
-# Formulario para Tomo (incluye subida de archivo)
 class TomoForm(forms.ModelForm):
     class Meta:
         model = Tomo
         fields = ['serie', 'editorial', 'numero_tomo', 'isbn', 'precio', 'stock', 'archivo_portada']
-        # Los widgets permiten agregar clases CSS para estilizar con Stitch/Tailwind o Bootstrap
         widgets = {
             'serie': forms.Select(attrs={'class': 'form-select'}),
             'editorial': forms.Select(attrs={'class': 'form-select'}),
@@ -19,11 +19,9 @@ class TomoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si es un nuevo tomo a crear, no precargar el 0 por defecto del modelo
         if not self.instance.pk:
             self.fields['stock'].initial = None
 
-# Formularios para los otros modelos auxiliares
 class SerieForm(forms.ModelForm):
     class Meta:
         model = Serie
@@ -74,13 +72,6 @@ class DemografiaForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
-
-
-# ==========================================
-# FORMULARIOS DE AUTENTICACIÓN Y REGISTRO
-# ==========================================
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 class RegistroUsuarioForm(UserCreationForm):
     first_name = forms.CharField(
