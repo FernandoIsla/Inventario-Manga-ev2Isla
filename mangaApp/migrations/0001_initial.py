@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
                 ('titulo', models.CharField(max_length=150, verbose_name='Título')),
                 ('sinopsis', models.TextField(blank=True, null=True, verbose_name='Sinopsis')),
                 ('estado', models.CharField(choices=[('EN_CURSO', 'En curso'), ('FINALIZADO', 'Finalizado'), ('PAUSA', 'En pausa')], default='EN_CURSO', max_length=20, verbose_name='Estado')),
-                ('autor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='mangaAPP.autor', verbose_name='Autor')),
-                ('demografia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='mangaAPP.demografia', verbose_name='Demografía')),
+                ('autor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='mangaApp.autor', verbose_name='Autor')),
+                ('demografia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='series', to='mangaApp.demografia', verbose_name='Demografía')),
             ],
         ),
         migrations.CreateModel(
@@ -57,8 +57,8 @@ class Migration(migrations.Migration):
                 ('stock', models.PositiveIntegerField(default=0, verbose_name='Stock Disponible')),
                 ('archivo_portada', models.FileField(upload_to='portadas/', verbose_name='Archivo/Portada')),
                 ('fecha_ingreso', models.DateField(auto_now_add=True, verbose_name='Fecha de Registro')),
-                ('editorial', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tomos', to='mangaAPP.editorial', verbose_name='Editorial')),
-                ('serie', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tomos', to='mangaAPP.serie', verbose_name='Serie')),
+                ('editorial', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tomos', to='mangaApp.editorial', verbose_name='Editorial')),
+                ('serie', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tomos', to='mangaApp.serie', verbose_name='Serie')),
             ],
         ),
     ]

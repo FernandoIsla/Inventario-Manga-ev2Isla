@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión de Mangas{% endblock %}</title>
+    <!-- Vinculamos nuestro CSS propio -->
+    <link rel="stylesheet" href="{% static 'mangaApp/estilos.css' %}">
+</head>
+
+<body>
+
+    <!-- Barra de navegación superior -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'inicio' %}" class="logo">📚 MangaStock</a>
+
+            <nav class="nav-links">
+                <a href="{% url 'inicio' %}">Inicio</a>
+                <a href="{% url 'listar_tomos' %}">Inventario</a>
+
+                {% if user.is_authenticated %}
+                <span class="user-badge">{{ user.username }}</span>
+                <a href="#">Salir</a>
+                {% else %}
+                <a href="#">Iniciar Sesión</a>
+                <a href="#">Registrarse</a>
+                {% endif %}
+
+                <!-- Botón de cambio de tema -->
+                <button id="btn-tema" class="btn-tema" title="Cambiar tema">🌙</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor principal donde entra el contenido de cada página -->
+    <main class="contenedor-principal">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 MangaStock - Sistema de Control de Inventario</p>
+    </footer>
+
+    <!-- JavaScript para el Modo Claro / Modo Oscuro -->
+    <script>
+        const btnTema = document.getElementById('btn-tema');
+        const temaActual = localStorage.getItem('tema');
+
+        // Si el usuario ya lo tenía en oscuro previamente, aplicarlo de inmediato
+        if (temaActual === 'oscuro') {
+            document.body.classList.add('dark-mode');
+            btnTema.textContent = '☀️';
+        }
+
+        btnTema.addEventListener('click', () => {
+            // Alterna la clase dark-mode en el body
+            document.body.classList.toggle('dark-mode');
+
+            // Revisa si quedó activo el modo oscuro para recordarlo
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('tema', 'oscuro');
+                btnTema.textContent = '☀️';
+            } else {
+                localStorage.setItem('tema', 'claro');
+                btnTema.textContent = '🌙';
+            }
+        });
+    </script>
+</body>
+
+</html>
