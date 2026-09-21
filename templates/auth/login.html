@@ -4,16 +4,6 @@
 
 {% block content %}
 
-{% if messages %}
-<div class="mensajes-contenedor" style="max-width: 440px; margin: 0 auto 1rem auto;">
-    {% for message in messages %}
-    <div class="alerta alerta-{{ message.tags }}">
-        <span>{{ message }}</span>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="card-formulario" style="max-width: 440px; margin: 2rem auto;">
     <h2 style="text-align: center; border-bottom: none; margin-bottom: 0.5rem;">
         Iniciar Sesión

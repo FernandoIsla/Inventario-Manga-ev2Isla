@@ -4,16 +4,6 @@
 
 {% block content %}
 
-{% if messages %}
-<div class="mensajes-contenedor">
-    {% for message in messages %}
-    <div class="alerta alerta-{{ message.tags }}">
-        <span>{{ message }}</span>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="tabla-contenedor">
     <div class="tabla-header-bar">
         <div>

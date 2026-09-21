@@ -27,14 +27,26 @@ class TomoForm(forms.ModelForm):
 class SerieForm(forms.ModelForm):
     class Meta:
         model = Serie
-        fields = ['titulo', 'sinopsis', 'estado', 'demografia', 'autor']
+        fields = ['titulo', 'sinopsis', 'estado', 'demografia', 'autor', 'tomo_portada']
         widgets = {
             'titulo': forms.TextInput(attrs={'class': 'form-control'}),
             'sinopsis': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
             'demografia': forms.Select(attrs={'class': 'form-select'}),
             'autor': forms.Select(attrs={'class': 'form-select'}),
+            'tomo_portada': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['tomo_portada'].queryset = Tomo.objects.filter(serie=self.instance).order_by('numero_tomo')
+            self.fields['tomo_portada'].empty_label = "Automático (Usar portada de Tomo #1)"
+            self.fields['tomo_portada'].required = False
+            self.fields['tomo_portada'].label = "Tomo para Portada (Destacada en Inicio)"
+        else:
+            self.fields['tomo_portada'].widget = forms.HiddenInput()
+            self.fields['tomo_portada'].required = False
 
 class AutorForm(forms.ModelForm):
     class Meta:

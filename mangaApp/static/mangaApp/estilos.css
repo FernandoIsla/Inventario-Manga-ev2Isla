@@ -261,7 +261,8 @@ body.dark-mode .btn-tema:hover .circulo-tema {
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.alerta-error, .alerta-danger {
+.alerta-error,
+.alerta-danger {
     background-color: rgba(239, 68, 68, 0.15);
     color: #dc2626;
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -418,7 +419,8 @@ body.dark-mode .alerta-info {
     color: var(--texto-principal);
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
     width: 100%;
     padding: 0.65rem 0.9rem;
     border-radius: 8px;
@@ -429,7 +431,8 @@ body.dark-mode .alerta-info {
     outline: none;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
     border-color: var(--color-primario);
     box-shadow: 0 0 0 3px var(--focus-ring);
 }
@@ -551,11 +554,47 @@ body.dark-mode .alerta-info {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-.manga-card-img {
+.manga-card-cover-container {
     width: 100%;
-    height: 280px;
-    object-fit: cover;
+    height: 310px;
     background-color: var(--bg-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.85rem;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid var(--borde);
+}
+
+.manga-card-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px -1px rgba(0, 0, 0, 0.25), 0 2px 5px -1px rgba(0, 0, 0, 0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.manga-card:hover .manga-card-img {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: 0 8px 20px -2px rgba(0, 0, 0, 0.35), 0 4px 8px -2px rgba(0, 0, 0, 0.18);
+}
+
+.manga-card-no-cover {
+    width: 160px;
+    height: 240px;
+    border: 2px dashed var(--borde);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--texto-secundario);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 .manga-card-body {
@@ -623,6 +662,7 @@ body.dark-mode .alerta-info {
     .inventario-layout {
         grid-template-columns: 1fr;
     }
+
     .inventario-sidebar {
         position: static;
     }
@@ -968,6 +1008,72 @@ body.dark-mode .dropdown-menu-exportar {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
 }
 
+/* Menú Desplegable Discreto de Filtrado en Inicio */
+.dropdown-filtrar-contenedor {
+    position: relative;
+    display: inline-block;
+}
+
+.btn-filtrar-dropdown {
+    background-color: var(--bg-card);
+    border: 1px solid var(--borde);
+    color: var(--texto-principal);
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    box-shadow: var(--sombra);
+    transition: all 0.2s ease;
+}
+
+.btn-filtrar-dropdown:hover {
+    background-color: var(--borde);
+    border-color: var(--color-primario);
+}
+
+.btn-filtrar-dropdown.activo {
+    border-color: var(--color-primario);
+    color: var(--color-primario);
+    font-weight: 600;
+}
+
+.filtro-indicador-punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--color-primario);
+    display: inline-block;
+}
+
+.dropdown-menu-filtrar {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background-color: var(--bg-card);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    min-width: 290px;
+    z-index: 100;
+    padding: 1.15rem;
+    text-align: left;
+}
+
+.dropdown-menu-filtrar.abierto {
+    display: block;
+}
+
+body.dark-mode .dropdown-menu-filtrar {
+    background-color: #18181b;
+    border-color: #27272a;
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.8);
+}
+
 /* Paginación */
 .paginacion-contenedor {
     display: flex;
@@ -1040,12 +1146,14 @@ body.dark-mode .dropdown-menu-exportar {
     overflow: hidden;
 }
 
-.upload-area:hover, .upload-area.dragover {
+.upload-area:hover,
+.upload-area.dragover {
     border-color: var(--color-primario);
     background-color: rgba(37, 99, 235, 0.04);
 }
 
-body.dark-mode .upload-area:hover, body.dark-mode .upload-area.dragover {
+body.dark-mode .upload-area:hover,
+body.dark-mode .upload-area.dragover {
     background-color: rgba(225, 29, 72, 0.06);
 }
 
@@ -1138,4 +1246,4 @@ body.dark-mode .upload-area:hover, body.dark-mode .upload-area.dragover {
     padding-top: 0.85rem;
     border-top: 1px solid var(--borde);
     text-align: left;
-}
+}

@@ -4,17 +4,6 @@
 
 {% block content %}
 
-<!-- Mensajes Flash del Sistema -->
-{% if messages %}
-<div class="mensajes-contenedor">
-    {% for message in messages %}
-    <div class="alerta alerta-{{ message.tags }}">
-        <span>{{ message }}</span>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
 <div class="inventario-layout">
     <!-- Barra Lateral Izquierda: Búsqueda y Filtros Sticky (Requisito 11) -->
     <aside class="inventario-sidebar">

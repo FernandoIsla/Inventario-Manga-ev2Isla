@@ -37,6 +37,35 @@ class Serie(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS, default='EN_CURSO', verbose_name="Estado")
     demografia = models.ForeignKey(Demografia, on_delete=models.CASCADE, related_name='series', verbose_name="Demografía")
     autor = models.ForeignKey(Autor, on_delete=models.CASCADE, related_name='series', verbose_name="Autor")
+    tomo_portada = models.ForeignKey(
+        'Tomo',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='series_portada',
+        verbose_name="Tomo para Portada"
+    )
+
+    def get_portada_url(self):
+        """Retorna la URL de la portada elegida o busca el primer tomo con portada registrada."""
+        if self.tomo_portada and self.tomo_portada.archivo_portada:
+            try:
+                return self.tomo_portada.archivo_portada.url
+            except Exception:
+                pass
+        primer_tomo = self.tomos.filter(archivo_portada__isnull=False).exclude(archivo_portada='').order_by('numero_tomo').first()
+        if primer_tomo and primer_tomo.archivo_portada:
+            try:
+                return primer_tomo.archivo_portada.url
+            except Exception:
+                pass
+        return None
+
+    @property
+    def editoriales_nombres(self):
+        """Retorna los nombres de las editoriales asociadas a los tomos de la serie."""
+        nombres = list(self.tomos.values_list('editorial__nombre', flat=True).distinct())
+        return ", ".join(nombres) if nombres else "Sin editorial"
 
     def __str__(self):
         return self.titulo

@@ -54,6 +54,16 @@
             {{ form.sinopsis }}
         </div>
 
+        {% if form.instance.pk %}
+        <div class="campo-form">
+            <label for="{{ form.tomo_portada.id_for_label }}">{{ form.tomo_portada.label }}</label>
+            {{ form.tomo_portada }}
+            <small style="color: var(--texto-secundario); font-size: 0.8rem; margin-top: 0.35rem; display: block;">
+                Elige qué tomo se usará como portada representativa de la serie en la página de inicio.
+            </small>
+        </div>
+        {% endif %}
+
         <div class="form-acciones">
             <a href="{% url 'listar_series' %}" class="btn btn-secundario">
                 Cancelar

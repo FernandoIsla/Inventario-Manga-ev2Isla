@@ -52,12 +52,23 @@
 
     <!-- Contenedor principal donde entra el contenido de cada página -->
     <main class="contenedor-principal">
+        {% if messages %}
+        <div class="mensajes-contenedor">
+            {% for message in messages %}
+            <div class="alerta alerta-{{ message.tags }}">
+                <span>{{ message }}</span>
+                <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; line-height: 1; color: inherit; cursor: pointer; padding: 0 0.35rem; opacity: 0.7;" title="Cerrar aviso">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}
         {% endblock %}
     </main>
 
     <footer class="footer">
-        <p>&copy; 2026 MangaStock - Sistema de Control de Inventario</p>
+        <p>Evaluación 2 Back End</p>
     </footer>
 
     <!-- JavaScript para el Modo Claro / Modo Oscuro -->

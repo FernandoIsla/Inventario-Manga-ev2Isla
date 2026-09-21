@@ -6,9 +6,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.http import HttpResponse
-from django.db.models import Q, Value, Count
+from django.db.models import Q, Value, Count, Sum
 from django.db.models.functions import Lower, Replace
 from django.core.paginator import Paginator
+from django.urls import reverse
 from .models import Tomo, Serie, Autor, Editorial, Demografia
 from .forms import (
     TomoForm, SerieForm, AutorForm, EditorialForm, DemografiaForm,
@@ -18,32 +19,170 @@ from .forms import (
 # Decorador para limitar acciones solo a usuarios con rol Administrador
 def solo_admin(view_func):
     @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
+    def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             messages.warning(request, 'Debes iniciar sesión para realizar esta acción.')
-            return redirect(f"/login/?next={request.path}")
-        if not request.user.is_staff and not request.user.is_superuser:
+            return redirect('login')
+        if not request.user.is_staff:
             messages.error(request, 'Acceso denegado: Se requieren permisos de Administrador para realizar esta acción.')
             return redirect('inicio')
         return view_func(request, *args, **kwargs)
-    return _wrapped_view
+    return wrapper
 
-# 1. Página inicial (muestra resumen y destacados)
+class EdicionSerieItem:
+    """Representa una tarjeta de serie por edición/editorial en la vitrina de inicio."""
+    def __init__(self, serie, editorial, total_volumenes, total_stock, portada_url):
+        self.serie = serie
+        self.editorial = editorial
+        self.editorial_nombre = editorial.nombre if editorial else "Sin editorial"
+        self.total_volumenes = total_volumenes
+        self.total_stock = total_stock
+        self.portada_url = portada_url
+
+    @property
+    def titulo(self):
+        return self.serie.titulo
+
+    @property
+    def autor(self):
+        return self.serie.autor
+
+    @property
+    def demografia(self):
+        return self.serie.demografia
+
+    @property
+    def url_inventario(self):
+        url = f"{reverse('listar_tomos')}?serie={self.serie.id}"
+        if self.editorial:
+            url += f"&editorial={self.editorial.id}"
+        return url
+
+# 1. Página inicial (muestra resumen y catálogo de series registradas con filtros)
 def pagina_inicio(request):
     total_tomos = Tomo.objects.count()
     total_series = Serie.objects.count()
     total_autores = Autor.objects.count()
     total_editoriales = Editorial.objects.count()
+    
+    demografias = Demografia.objects.all().order_by('nombre')
     editoriales = Editorial.objects.all().order_by('nombre')
-    ultimos_tomos = Tomo.objects.select_related('serie', 'editorial').order_by('-id')[:4]
+    autores = Autor.objects.all().order_by('nombre')
+    
+    # Parámetros de filtrado
+    filtro_demografia = request.GET.get('demografia', '').strip()
+    filtro_editorial = request.GET.get('editorial', '').strip()
+    filtro_autor = request.GET.get('autor', '').strip()
+    
+    # Consulta base de series
+    series_qs = Serie.objects.select_related('autor', 'demografia', 'tomo_portada').order_by('titulo')
+    if filtro_demografia:
+        series_qs = series_qs.filter(demografia_id=filtro_demografia)
+    if filtro_autor:
+        series_qs = series_qs.filter(autor_id=filtro_autor)
+
+    # Combinaciones de tomos por serie y editorial
+    combos_qs = Tomo.objects.filter(serie__in=series_qs)
+    if filtro_editorial:
+        combos_qs = combos_qs.filter(editorial_id=filtro_editorial)
+
+    combos = (
+        combos_qs
+        .values('serie_id', 'editorial_id')
+        .annotate(
+            total_volumenes=Count('id'),
+            total_stock=Sum('stock')
+        )
+        .order_by('serie__titulo', 'editorial__nombre')
+    )
+
+    # Mapa de portadas precargado en 1 sola consulta
+    tomos_con_portada = (
+        Tomo.objects.filter(serie__in=series_qs, archivo_portada__isnull=False)
+        .exclude(archivo_portada='')
+        .order_by('numero_tomo')
+    )
+    portadas_map = {}
+    for t in tomos_con_portada:
+        k = (t.serie_id, t.editorial_id)
+        if k not in portadas_map:
+            try:
+                portadas_map[k] = t.archivo_portada.url
+            except Exception:
+                pass
+
+    series_dict = {s.id: s for s in series_qs}
+    editoriales_dict = {e.id: e for e in editoriales}
+    series_con_tomos = set()
+    cards_list = []
+
+    for c in combos:
+        serie = series_dict.get(c['serie_id'])
+        if not serie:
+            continue
+        editorial = editoriales_dict.get(c['editorial_id'])
+        series_con_tomos.add(serie.id)
+
+        # Portada: Tomo asignado como portada para esta editorial o primer tomo disponible
+        portada_url = None
+        if serie.tomo_portada and serie.tomo_portada.editorial_id == (editorial.id if editorial else None) and serie.tomo_portada.archivo_portada:
+            try:
+                portada_url = serie.tomo_portada.archivo_portada.url
+            except Exception:
+                pass
+        if not portada_url:
+            portada_url = portadas_map.get((serie.id, editorial.id if editorial else None))
+
+        cards_list.append(EdicionSerieItem(
+            serie=serie,
+            editorial=editorial,
+            total_volumenes=c['total_volumenes'],
+            total_stock=c['total_stock'],
+            portada_url=portada_url
+        ))
+
+    # Incluir series sin tomos si no hay filtro de editorial activo
+    if not filtro_editorial:
+        for s in series_qs:
+            if s.id not in series_con_tomos:
+                cards_list.append(EdicionSerieItem(
+                    serie=s,
+                    editorial=None,
+                    total_volumenes=0,
+                    total_stock=0,
+                    portada_url=s.get_portada_url()
+                ))
+
+    filtros_activos = bool(filtro_demografia or filtro_editorial or filtro_autor)
+    total_series_filtradas = len(cards_list)
+    
+    # Construir query string para paginación preservando filtros
+    params = request.GET.copy()
+    if 'page' in params:
+        del params['page']
+    query_string = params.urlencode()
+    
+    # Paginación a 24 tarjetas por página
+    paginator = Paginator(cards_list, 24)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     return render(request, 'inicio.html', {
         'total_tomos': total_tomos,
         'total_series': total_series,
+        'total_series_filtradas': total_series_filtradas,
         'total_autores': total_autores,
         'total_editoriales': total_editoriales,
         'editoriales': editoriales,
-        'ultimos_tomos': ultimos_tomos,
+        'demografias': demografias,
+        'autores': autores,
+        'series': page_obj,
+        'page_obj': page_obj,
+        'filtro_demografia': filtro_demografia,
+        'filtro_editorial': filtro_editorial,
+        'filtro_autor': filtro_autor,
+        'filtros_activos': filtros_activos,
+        'query_string': query_string,
     })
 
 # Función auxiliar para filtrar tomos según parámetros GET (Requisito 11)
@@ -535,3 +674,4 @@ def registro_usuario(request):
         form = RegistroUsuarioForm()
     
     return render(request, 'auth/registro.html', {'form': form})
+
