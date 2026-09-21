@@ -6,6 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gestión de Mangas{% endblock %}</title>
+    <!-- Google Font: Geist Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Vinculamos nuestro CSS propio -->
     <link rel="stylesheet" href="{% static 'mangaApp/estilos.css' %}">
 </head>
@@ -15,11 +19,15 @@
     <!-- Barra de navegación superior -->
     <header class="navbar">
         <div class="nav-container">
-            <a href="{% url 'inicio' %}" class="logo">📚 MangaStock</a>
+            <a href="{% url 'inicio' %}" class="logo">MangaStock</a>
 
             <nav class="nav-links">
                 <a href="{% url 'inicio' %}">Inicio</a>
                 <a href="{% url 'listar_tomos' %}">Inventario</a>
+                <a href="{% url 'listar_series' %}">Series</a>
+                <a href="{% url 'listar_autores' %}">Autores</a>
+                <a href="{% url 'listar_editoriales' %}">Editoriales</a>
+                <a href="{% url 'listar_demografias' %}">Demografías</a>
 
                 {% if user.is_authenticated %}
                 <span class="user-badge">{{ user.username }}</span>

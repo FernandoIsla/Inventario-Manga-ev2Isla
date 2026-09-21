@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Editoriales - MangaStock{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mensajes-contenedor">
+    {% for message in messages %}
+    <div class="alerta alerta-{{ message.tags }}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="tabla-contenedor">
+    <div class="tabla-header-bar">
+        <div>
+            <h2>Catálogo de Editoriales</h2>
+            <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
+                Sellos editoriales y distribuidores de manga físicos
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{% url 'crear_editorial' %}" class="btn btn-primario">
+                Nueva Editorial
+            </a>
+        </div>
+    </div>
+
+    <div class="tabla-responsive">
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>Nombre Editorial</th>
+                    <th>País de Origen</th>
+                    <th>Tomos Publicados</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for editorial in editoriales %}
+                <tr>
+                    <td><strong>{{ editorial.nombre }}</strong></td>
+                    <td>{{ editorial.pais_origen|default:"No especificado" }}</td>
+                    <td>
+                        <span class="badge badge-info">{{ editorial.tomos.count }} tomos</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: inline-flex; gap: 0.4rem;">
+                            <a href="{% url 'editar_editorial' editorial.pk %}" class="btn btn-sm btn-secundario">
+                                Editar
+                            </a>
+                            <a href="{% url 'eliminar_editorial' editorial.pk %}" class="btn btn-sm btn-peligro">
+                                Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                        <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
+                            No hay editoriales registradas.
+                        </p>
+                        <p style="font-size: 0.875rem; margin-bottom: 1.25rem;">
+                            Registra editoriales para poder asignar tomos al inventario.
+                        </p>
+                        <a href="{% url 'crear_editorial' %}" class="btn btn-primario">
+                            Registrar Primer Editorial
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

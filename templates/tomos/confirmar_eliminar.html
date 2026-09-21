@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Eliminación - MangaStock{% endblock %}
+
+{% block content %}
+<div class="card-formulario" style="max-width: 550px; text-align: center;">
+    <h2 style="color: #ef4444; border-bottom: none; margin-bottom: 0.5rem;">
+        ¿Eliminar Tomo del Inventario?
+    </h2>
+
+    <p style="color: var(--texto-secundario); font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.5;">
+        Esta acción es irreversible y eliminará el registro junto con sus referencias.
+    </p>
+
+    <div style="background-color: var(--bg-body); border: 1px solid var(--borde); border-radius: 8px; padding: 1.25rem; text-align: left; margin-bottom: 1.75rem;">
+        <p style="margin-bottom: 0.4rem;">
+            <strong>Serie:</strong> {{ tomo.serie.titulo }}
+        </p>
+        <p style="margin-bottom: 0.4rem;">
+            <strong>Número de Tomo:</strong> Vol. #{{ tomo.numero_tomo }}
+        </p>
+        <p style="margin-bottom: 0.4rem;">
+            <strong>Editorial:</strong> {{ tomo.editorial.nombre }}
+        </p>
+        <p style="margin-bottom: 0.4rem;">
+            <strong>ISBN:</strong> {{ tomo.isbn }}
+        </p>
+        <p style="margin-bottom: 0;">
+            <strong>Stock actual:</strong> {{ tomo.stock }} unidades
+        </p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; justify-content: center; gap: 1rem;">
+            <a href="{% url 'listar_tomos' %}" class="btn btn-secundario">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-peligro">
+                Confirmar Eliminación
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Catálogo de Series - MangaStock{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="mensajes-contenedor">
+    {% for message in messages %}
+    <div class="alerta alerta-{{ message.tags }}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="tabla-contenedor">
+    <div class="tabla-header-bar">
+        <div>
+            <h2>Catálogo de Series</h2>
+            <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
+                Administración de obras, autores asignados y demografía editorial
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{% url 'crear_serie' %}" class="btn btn-primario">
+                Nueva Serie
+            </a>
+        </div>
+    </div>
+
+    <div class="tabla-responsive">
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>Título de la Serie</th>
+                    <th>Autor</th>
+                    <th>Demografía</th>
+                    <th>Estado</th>
+                    <th>Sinopsis</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for serie in series %}
+                <tr>
+                    <td><strong>{{ serie.titulo }}</strong></td>
+                    <td>{{ serie.autor.nombre }}</td>
+                    <td><span class="badge badge-info">{{ serie.demografia.nombre }}</span></td>
+                    <td>
+                        {% if serie.estado == 'FINALIZADO' %}
+                        <span class="badge badge-success">Finalizado</span>
+                        {% elif serie.estado == 'EN_CURSO' %}
+                        <span class="badge badge-warning">En curso</span>
+                        {% else %}
+                        <span class="badge badge-danger">En pausa</span>
+                        {% endif %}
+                    </td>
+                    <td style="max-width: 320px; font-size: 0.85rem; color: var(--texto-secundario);">
+                        {{ serie.sinopsis|default:"Sin sinopsis registrada"|truncatechars:100 }}
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: inline-flex; gap: 0.4rem;">
+                            <a href="{% url 'editar_serie' serie.pk %}" class="btn btn-sm btn-secundario">
+                                Editar
+                            </a>
+                            <a href="{% url 'eliminar_serie' serie.pk %}" class="btn btn-sm btn-peligro">
+                                Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                        <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
+                            No hay series registradas aún.
+                        </p>
+                        <p style="font-size: 0.875rem; margin-bottom: 1.25rem;">
+                            Registra una nueva serie de manga para asociar sus tomos.
+                        </p>
+                        <a href="{% url 'crear_serie' %}" class="btn btn-primario">
+                            Registrar Primer Serie
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

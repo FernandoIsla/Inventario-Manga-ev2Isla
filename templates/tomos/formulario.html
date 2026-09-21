@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - MangaStock{% endblock %}
+
+{% block content %}
+<div class="card-formulario">
+    <h2>{{ titulo }}</h2>
+
+    {% if form.errors %}
+    <div class="alerta alerta-danger" style="margin-bottom: 1.5rem;">
+        <div>
+            <strong>Por favor corrige los errores señalados:</strong>
+            <ul style="margin-top: 0.5rem; padding-left: 1.25rem;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="campo-form">
+                <label for="{{ form.serie.id_for_label }}">{{ form.serie.label }} *</label>
+                {{ form.serie }}
+                {% if form.serie.help_text %}
+                <small style="color: var(--texto-secundario);">{{ form.serie.help_text }}</small>
+                {% endif %}
+            </div>
+
+            <div class="campo-form">
+                <label for="{{ form.editorial.id_for_label }}">{{ form.editorial.label }} *</label>
+                {{ form.editorial }}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="campo-form">
+                <label for="{{ form.numero_tomo.id_for_label }}">{{ form.numero_tomo.label }} *</label>
+                {{ form.numero_tomo }}
+            </div>
+
+            <div class="campo-form">
+                <label for="{{ form.isbn.id_for_label }}">{{ form.isbn.label }} *</label>
+                {{ form.isbn }}
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="campo-form">
+                <label for="{{ form.precio.id_for_label }}">{{ form.precio.label }} ($) *</label>
+                {{ form.precio }}
+            </div>
+
+            <div class="campo-form">
+                <label for="{{ form.stock.id_for_label }}">{{ form.stock.label }} *</label>
+                {{ form.stock }}
+            </div>
+        </div>
+
+        <div class="campo-form">
+            <label for="{{ form.archivo_portada.id_for_label }}">{{ form.archivo_portada.label }} *</label>
+            <div style="border: 1px dashed var(--borde); padding: 1rem; border-radius: 8px; background-color: var(--bg-body);">
+                {{ form.archivo_portada }}
+                <p style="font-size: 0.8rem; color: var(--texto-secundario); margin-top: 0.5rem;">
+                    Formatos permitidos: imágenes JPG, PNG, WEBP o documentos PDF de la portada/ficha.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-acciones">
+            <a href="{% url 'listar_tomos' %}" class="btn btn-secundario">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primario">
+                Guardar Tomo
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

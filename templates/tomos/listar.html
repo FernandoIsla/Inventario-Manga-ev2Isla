@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Inventario de Tomos - MangaStock{% endblock %}
+
+{% block content %}
+
+<!-- Mensajes Flash del Sistema -->
+{% if messages %}
+<div class="mensajes-contenedor">
+    {% for message in messages %}
+    <div class="alerta alerta-{{ message.tags }}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="tabla-contenedor">
+    <div class="tabla-header-bar">
+        <div>
+            <h2>Inventario General de Tomos</h2>
+            <p style="color: var(--texto-secundario); font-size: 0.875rem; margin-top: 0.25rem;">
+                Control de existencias físicas y registros de portada
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
+                Nuevo Tomo
+            </a>
+        </div>
+    </div>
+
+    <div class="tabla-responsive">
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th style="width: 85px; text-align: center;">Portada</th>
+                    <th>Serie</th>
+                    <th>N° Tomo</th>
+                    <th>Editorial</th>
+                    <th>ISBN</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tomo in tomos %}
+                <tr>
+                    <td style="text-align: center;">
+                        {% if tomo.archivo_portada %}
+                        <a href="{{ tomo.archivo_portada.url }}" target="_blank" title="Ver archivo completo">
+                            <img src="{{ tomo.archivo_portada.url }}" alt="Portada {{ tomo.serie.titulo }}"
+                                style="width: 48px; height: 68px; object-fit: cover; border-radius: 4px; border: 1px solid var(--borde);">
+                        </a>
+                        {% else %}
+                        <span style="font-size: 0.75rem; color: var(--texto-secundario); display: block;">Sin archivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ tomo.serie.titulo }}</strong>
+                        <span style="display: block; font-size: 0.8rem; color: var(--texto-secundario);">
+                            {{ tomo.serie.demografia.nombre }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">Vol. #{{ tomo.numero_tomo }}</span>
+                    </td>
+                    <td>{{ tomo.editorial.nombre }}</td>
+                    <td><code style="font-size: 0.85rem;">{{ tomo.isbn }}</code></td>
+                    <td><strong>${{ tomo.precio|floatformat:0 }}</strong></td>
+                    <td>
+                        {% if tomo.stock > 5 %}
+                        <span class="badge badge-success">{{ tomo.stock }} unid.</span>
+                        {% elif tomo.stock > 0 %}
+                        <span class="badge badge-warning">{{ tomo.stock }} unid.</span>
+                        {% else %}
+                        <span class="badge badge-danger">Agotado</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: inline-flex; gap: 0.4rem;">
+                            <a href="{% url 'editar_tomo' tomo.pk %}" class="btn btn-sm btn-secundario">
+                                Editar
+                            </a>
+                            <a href="{% url 'eliminar_tomo' tomo.pk %}" class="btn btn-sm btn-peligro">
+                                Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: var(--texto-secundario);">
+                        <p style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--texto-principal);">
+                            No hay tomos registrados en el inventario aún.
+                        </p>
+                        <p style="font-size: 0.875rem; margin-bottom: 1.25rem;">
+                            Comienza agregando el primer tomo físico y su archivo de portada.
+                        </p>
+                        <a href="{% url 'crear_tomo' %}" class="btn btn-primario">
+                            Registrar Primer Tomo
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

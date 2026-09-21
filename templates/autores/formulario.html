@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} - MangaStock{% endblock %}
+
+{% block content %}
+<div class="card-formulario">
+    <h2>{{ titulo }}</h2>
+
+    {% if form.errors %}
+    <div class="alerta alerta-danger" style="margin-bottom: 1.5rem;">
+        <div>
+            <strong>Por favor corrige los errores señalados:</strong>
+            <ul style="margin-top: 0.5rem; padding-left: 1.25rem;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+
+        <div class="campo-form">
+            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }} *</label>
+            {{ form.nombre }}
+        </div>
+
+        <div class="campo-form">
+            <label for="{{ form.nacionalidad.id_for_label }}">{{ form.nacionalidad.label }}</label>
+            {{ form.nacionalidad }}
+        </div>
+
+        <div class="form-acciones">
+            <a href="{% url 'listar_autores' %}" class="btn btn-secundario">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primario">
+                Guardar Autor
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
