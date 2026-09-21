@@ -6,8 +6,9 @@ venv/
 __pycache__/
 *.pyc
 
-# Archivos multimedia locales
-media/
+# Archivos multimedia (se excluye media general pero se incluye media/portadas/ para entrega)
+media/*
+!media/portadas/
 
 # Base de datos local SQLite
 *.sqlite3
